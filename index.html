@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>xXRenq's link hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    /* dark mode colors */
+    :root {
+      --bg: #07050a;
+      --text: #f0eef5;
+      --bubble-glow: rgba(255, 70, 100, 0.16);
+      --btn-bg: rgba(255, 255, 255, 0.04);
+      --btn-border: rgba(255, 90, 120, 0.28);
+      --btn-hover: rgba(255, 70, 100, 0.11);
+      --btn-text: #fff;
+      --accent: #ff4d6d;
+      --contact: rgba(255, 255, 255, 0.2);
+      --toggle-bg: rgba(255, 255, 255, 0.06);
+      --toggle-border: rgba(255, 255, 255, 0.13);
+    }
+
+    /* light mode */
+    body.light {
+      --bg: #e8eaf3;
+      --text: #1a1825;
+      --bubble-glow: rgba(120, 90, 255, 0.2);
+      --btn-bg: rgba(255, 255, 255, 0.65);
+      --btn-border: rgba(110, 80, 220, 0.28);
+      --btn-hover: rgba(120, 90, 240, 0.12);
+      --btn-text: #1a1825;
+      --accent: #6d4cff;
+      --contact: rgba(0, 0, 0, 0.32);
+      --toggle-bg: rgba(255, 255, 255, 0.75);
+      --toggle-border: rgba(0, 0, 0, 0.09);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.6s ease, color 0.6s ease;
+    }
+
+    canvas#bg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .ui {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      pointer-events: none;
+    }
+
+    .ui > * {
+      pointer-events: auto;
+    }
+
+    /* clock */
+    .clock {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      font-size: clamp(2.5rem, 8.5vw, 4rem);
+      letter-spacing: 0.14em;
+      margin-bottom: 2.6rem;
+      text-shadow: 0 0 30px var(--bubble-glow);
+      transition: text-shadow 0.55s ease;
+      user-select: none;
+    }
+
+    /* buttons */
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      width: min(310px, 85vw);
+    }
+
+    .btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 56px;
+      border-radius: 14px;
+      background: var(--btn-bg);
+      border: 1.5px solid var(--btn-border);
+      color: var(--btn-text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.92rem;
+      letter-spacing: 0.13em;
+      text-decoration: none;
+      text-transform: uppercase;
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition:
+        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.4s ease,
+        border-color 0.4s ease,
+        box-shadow 0.4s ease;
+      box-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    /* hover shine */
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        115deg,
+        transparent 35%,
+        rgba(255, 255, 255, 0.09) 50%,
+        transparent 65%
+      );
+      transform: translateX(-130%);
+      transition: transform 0.7s ease;
+    }
+
+    .btn:hover::before,
+    .btn:focus-visible::before {
+      transform: translateX(130%);
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-2px) scale(1.02);
+      background: var(--btn-hover);
+      border-color: var(--accent);
+      box-shadow:
+        0 8px 28px rgba(0, 0, 0, 0.15),
+        0 0 18px var(--bubble-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      outline: none;
+    }
+
+    .btn:active {
+      transform: translateY(0) scale(0.98);
+      transition-duration: 0.12s;
+    }
+
+    /* theme toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 1.3rem;
+      right: 1.3rem;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.48rem 0.85rem;
+      border-radius: 999px;
+      background: var(--toggle-bg);
+      border: 1px solid var(--toggle-border);
+      color: var(--text);
+      font-size: 0.76rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition:
+        background 0.4s ease,
+        border-color 0.4s ease,
+        transform 0.25s ease,
+        box-shadow 0.35s ease;
+      user-select: none;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .theme-toggle:active {
+      transform: scale(0.97);
+    }
+
+    .theme-toggle .icon {
+      font-size: 0.9rem;
+      line-height: 1;
+    }
+
+    /* contact */
+    .contact {
+      position: fixed;
+      bottom: 1.15rem;
+      left: 1.15rem;
+      z-index: 20;
+      font-size: 0.7rem;
+      color: var(--contact);
+      letter-spacing: 0.015em;
+      user-select: none;
+      transition: color 0.55s ease;
+      pointer-events: none;
+    }
+
+    /* mobile */
+    @media (max-width: 480px) {
+      .clock {
+        margin-bottom: 2.1rem;
+      }
+      .btn {
+        height: 52px;
+        font-size: 0.86rem;
+      }
+      .theme-toggle {
+        top: 0.95rem;
+        right: 0.95rem;
+        padding: 0.42rem 0.7rem;
+        font-size: 0.7rem;
+      }
+      .contact {
+        font-size: 0.63rem;
+        bottom: 0.85rem;
+        left: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body class="dark">
+  <canvas id="bg"></canvas>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <span class="icon" id="themeIcon">☾</span>
+    <span id="themeLabel">dark</span>
+  </button>
+
+  <div class="ui">
+    <div class="clock" id="clock">00:00</div>
+    <div class="buttons">
+      <a class="btn" href="https://www.instagram.com/siemaelopozdro69/" target="_blank" rel="noopener">Instagram</a>
+      <a class="btn" href="https://steamcommunity.com/id/xxrenq/" target="_blank" rel="noopener">Steam</a>
+      <a class="btn" href="https://github.com/WetHat47" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+
+  <div class="contact">contact: chodliwy.placek1 @ discord</div>
+
+  <script>
+    // theme
+    const body = document.body;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+    let isDark = true;
+
+    function applyTheme() {
+      body.classList.toggle('dark', isDark);
+      body.classList.toggle('light', !isDark);
+      themeIcon.textContent = isDark ? '☾' : '☀';
+      themeLabel.textContent = isDark ? 'dark' : 'light';
+      updateColors();
+    }
+
+    themeToggle.addEventListener('click', () => {
+      isDark = !isDark;
+      applyTheme();
+    });
+
+    // clock (warsaw time)
+    const clockEl = document.getElementById('clock');
+    function updateClock() {
+      clockEl.textContent = new Date().toLocaleTimeString('pl-PL', {
+        timeZone: 'Europe/Warsaw',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // background
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let W, H, dpr;
+    let clouds = [];
+    let stars = [];
+    let palette = {};
+
+    function updateColors() {
+      if (isDark) {
+        // dark
+        palette = {
+          cloudCore: 'rgba(200, 40, 70, 0.32)',
+          cloudMid: 'rgba(255, 60, 100, 0.13)',
+          cloudOuter: 'rgba(160, 25, 55, 0.08)',
+          wash: 'rgba(70, 8, 30, 0.5)',
+          wash2: 'rgba(40, 5, 22, 0.25)',
+          star: [255, 235, 245]
+        };
+      } else {
+        // light
+        palette = {
+          cloudCore: 'rgba(125, 95, 240, 0.38)',
+          cloudMid: 'rgba(100, 140, 255, 0.18)',
+          cloudOuter: 'rgba(150, 120, 255, 0.1)',
+          wash: 'rgba(145, 125, 255, 0.3)',
+          wash2: 'rgba(120, 140, 255, 0.15)',
+          star: [90, 70, 160]
+        };
+      }
+    }
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      createStars();
+    }
+
+    function createStars() {
+      stars = [];
+      const count = Math.floor((W * H) / 13000);
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: 0.25 + Math.random() * 0.9,
+          a: 0.1 + Math.random() * 0.35
+        });
+      }
+    }
+
+    class Cloud {
+      constructor() {
+        this.puffs = [];
+        this.reset(true);
+      }
+
+      reset(initial = false) {
+        const scale = 0.5 + Math.random() * 1.0;
+
+        this.x = Math.random() * W;
+        this.y = initial ? Math.random() * H : H + 80 + Math.random() * 60;
+
+        this.vx = (Math.random() - 0.5) * 0.06;
+        this.vy = -(0.018 + Math.random() * 0.04);
+
+        this.alpha = 0.16 + Math.random() * 0.26;
+        this.wobble = Math.random() * Math.PI * 2;
+        this.wobbleSpeed = 0.001 + Math.random() * 0.002;
+
+        this.puffs = [];
+
+        this.puffs.push({
+          ox: 0,
+          oy: 8 * scale,
+          r: (28 + Math.random() * 18) * scale
+        });
+
+        this.puffs.push({
+          ox: -22 * scale,
+          oy: 0,
+          r: (20 + Math.random() * 14) * scale
+        });
+
+        this.puffs.push({
+          ox: 24 * scale,
+          oy: 2 * scale,
+          r: (22 + Math.random() * 15) * scale
+        });
+
+        this.puffs.push({
+          ox: -8 * scale,
+          oy: -18 * scale,
+          r: (16 + Math.random() * 12) * scale
+        });
+        this.puffs.push({
+          ox: 12 * scale,
+          oy: -16 * scale,
+          r: (15 + Math.random() * 11) * scale
+        });
+
+        const extras = 2 + Math.floor(Math.random() * 4);
+        for (let i = 0; i < extras; i++) {
+          this.puffs.push({
+            ox: (Math.random() - 0.5) * 50 * scale,
+            oy: (Math.random() - 0.5) * 30 * scale,
+            r: (10 + Math.random() * 14) * scale
+          });
+        }
+      }
+
+      update() {
+        this.wobble += this.wobbleSpeed;
+        this.x += this.vx + Math.sin(this.wobble) * 0.06;
+        this.y += this.vy;
+
+        if (this.y < -100) this.reset();
+        if (this.x < -120) this.x = W + 80;
+        if (this.x > W + 120) this.x = -80;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        for (const p of this.puffs) {
+          ctx.globalAlpha = this.alpha * 0.55;
+          let g = ctx.createRadialGradient(p.ox, p.oy, 0, p.ox, p.oy, p.r * 1.6);
+          g.addColorStop(0, palette.cloudMid);
+          g.addColorStop(0.6, palette.cloudOuter);
+          g.addColorStop(1, 'transparent');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(p.ox, p.oy, p.r * 1.55, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.globalAlpha = this.alpha * 0.85;
+          g = ctx.createRadialGradient(p.ox, p.oy, 0, p.ox, p.oy, p.r);
+          g.addColorStop(0, palette.cloudCore);
+          g.addColorStop(0.7, palette.cloudMid);
+          g.addColorStop(1, 'transparent');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(p.ox, p.oy, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    function initClouds() {
+      clouds = [];
+      const count = Math.min(18, Math.floor((W * H) / 38000));
+      for (let i = 0; i < count; i++) {
+        clouds.push(new Cloud());
+      }
+    }
+
+    function drawBackground() {
+      const cx = W * 0.28;
+      const cy = H * 0.38;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.95);
+      grad.addColorStop(0, palette.wash);
+      grad.addColorStop(0.55, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      const g2 = ctx.createRadialGradient(W * 0.78, H * 0.72, 0, W * 0.78, H * 0.72, Math.max(W, H) * 0.6);
+      g2.addColorStop(0, palette.wash2);
+      g2.addColorStop(1, 'transparent');
+      ctx.fillStyle = g2;
+      ctx.fillRect(0, 0, W, H);
+
+      const [r, g, b] = palette.star;
+      for (const s of stars) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r},${g},${b},${s.a})`;
+        ctx.fill();
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, W, H);
+      drawBackground();
+      for (const c of clouds) {
+        c.update();
+        c.draw();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => {
+      resize();
+    });
+
+    resize();
+    updateColors();
+    initClouds();
+    animate();
+    applyTheme();
+  </script>
+</body>
+</html>
