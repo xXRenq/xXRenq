@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>xXRenq's link hub</title>
+  <meta name="description" content="xXRenq's links — Instagram, Steam, GitHub, Battlefield stats and YouTube." />
+  <meta name="theme-color" content="#07050a" />
+  <meta property="og:title" content="xXRenq's link hub" />
+  <meta property="og:description" content="Instagram, Steam, GitHub, Battlefield stats and YouTube, all in one place." />
+  <meta property="og:type" content="website" />
+  <!-- simple dot favicon so the tab isn't blank, matches the accent color -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2242%22 fill=%22%2307050a%22 stroke=%22%23ff4d6d%22 stroke-width=%228%22/></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@500;600&display=swap" rel="stylesheet">
@@ -22,7 +29,6 @@
       --toggle-bg: rgba(255, 255, 255, 0.06);
       --toggle-border: rgba(255, 255, 255, 0.13);
     }
-
     /* light mode */
     body.light {
       --bg: #e8eaf3;
@@ -37,14 +43,12 @@
       --toggle-bg: rgba(255, 255, 255, 0.75);
       --toggle-border: rgba(0, 0, 0, 0.09);
     }
-
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-
     html, body {
       width: 100%;
       height: 100%;
@@ -54,7 +58,6 @@
       color: var(--text);
       transition: background 0.6s ease, color 0.6s ease;
     }
-
     canvas#bg {
       position: fixed;
       inset: 0;
@@ -63,7 +66,6 @@
       z-index: 0;
       pointer-events: none;
     }
-
     .ui {
       position: relative;
       z-index: 10;
@@ -76,11 +78,9 @@
       padding: 1.5rem;
       pointer-events: none;
     }
-
     .ui > * {
       pointer-events: auto;
     }
-
     /* clock */
     .clock {
       font-family: 'Orbitron', sans-serif;
@@ -92,7 +92,6 @@
       transition: text-shadow 0.55s ease;
       user-select: none;
     }
-
     /* buttons */
     .buttons {
       display: flex;
@@ -100,12 +99,16 @@
       gap: 1.1rem;
       width: min(310px, 85vw);
     }
-
+    /* second page of buttons, hidden until "more" is clicked */
+    .buttons.page2 {
+      display: none;
+    }
     .btn {
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 0.6rem;
       height: 56px;
       border-radius: 14px;
       background: var(--btn-bg);
@@ -120,6 +123,7 @@
       overflow: hidden;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
+      cursor: pointer;
       transition:
         transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
         background 0.4s ease,
@@ -129,7 +133,6 @@
         0 4px 18px rgba(0, 0, 0, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
-
     /* hover shine */
     .btn::before {
       content: '';
@@ -144,12 +147,10 @@
       transform: translateX(-130%);
       transition: transform 0.7s ease;
     }
-
     .btn:hover::before,
     .btn:focus-visible::before {
       transform: translateX(130%);
     }
-
     .btn:hover,
     .btn:focus-visible {
       transform: translateY(-2px) scale(1.02);
@@ -161,12 +162,16 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.08);
       outline: none;
     }
-
+    /* small icon that sits before the button label */
+    .btn-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
     .btn:active {
       transform: translateY(0) scale(0.98);
       transition-duration: 0.12s;
     }
-
     /* theme toggle */
     .theme-toggle {
       position: fixed;
@@ -194,21 +199,17 @@
         box-shadow 0.35s ease;
       user-select: none;
     }
-
     .theme-toggle:hover {
       transform: scale(1.03);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     }
-
     .theme-toggle:active {
       transform: scale(0.97);
     }
-
     .theme-toggle .icon {
       font-size: 0.9rem;
       line-height: 1;
     }
-
     /* contact */
     .contact {
       position: fixed;
@@ -219,8 +220,160 @@
       color: var(--contact);
       letter-spacing: 0.015em;
       user-select: none;
-      transition: color 0.55s ease;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      pointer-events: auto;
+    }
+    .contact:hover {
+      color: var(--accent);
+    }
+
+    /* ---------- battlefield popup ---------- */
+    .bf-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .bf-overlay.open {
+      display: flex;
+    }
+    .bf-popup {
+      position: relative;
+      width: min(320px, 85vw);
+      padding: 2rem 1.6rem 1.8rem;
+      border-radius: 14px;
+      background: var(--btn-bg);
+      border: 1.5px solid var(--btn-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow:
+        0 8px 28px rgba(0, 0, 0, 0.15),
+        0 0 22px var(--bubble-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+      animation: bfPopIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: background 0.6s ease, border-color 0.6s ease;
+    }
+    /* glitchy border layers, just two offset outlines flickering, tinted red but see-through so it doesn't fight the theme */
+    .bf-popup::before,
+    .bf-popup::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255, 77, 109, 0.55);
       pointer-events: none;
+    }
+    .bf-popup::before {
+      animation: bfGlitch1 2.6s infinite steps(1);
+    }
+    .bf-popup::after {
+      animation: bfGlitch2 3.1s infinite steps(1);
+    }
+    @keyframes bfGlitch1 {
+      0%, 92%, 100% { transform: translate(0, 0); opacity: 0; }
+      93% { transform: translate(-2px, 1px); opacity: 0.7; }
+      95% { transform: translate(2px, -1px); opacity: 0.5; }
+      97% { transform: translate(-1px, 0); opacity: 0.6; }
+    }
+    @keyframes bfGlitch2 {
+      0%, 88%, 100% { transform: translate(0, 0); opacity: 0; }
+      89% { transform: translate(2px, -2px); opacity: 0.5; }
+      90.5% { transform: translate(-2px, 1px); opacity: 0.7; }
+      92% { transform: translate(1px, 1px); opacity: 0.4; }
+    }
+    @keyframes bfPopIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .bf-title {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      font-size: 1.15rem;
+      letter-spacing: 0.08em;
+      text-align: center;
+      color: var(--accent);
+      margin-bottom: 1.4rem;
+      text-transform: uppercase;
+      transition: color 0.55s ease;
+    }
+    .bf-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    /* basically the same recipe as .btn so it doesn't look like a different site */
+    .bf-btn {
+      height: 48px;
+      border-radius: 10px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--btn-text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    }
+    .bf-btn:hover {
+      background: var(--btn-hover);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .bf-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+    .bf-close {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      color: var(--contact);
+      font-size: 1.2rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.4s ease;
+    }
+    .bf-close:hover {
+      color: var(--accent);
+    }
+
+    /* floating "not out yet" style message */
+    .toast {
+      position: fixed;
+      bottom: 6.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+      padding: 0.75rem 1.2rem;
+      border-radius: 10px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), 0 0 16px var(--bubble-glow);
+      white-space: nowrap;
+      pointer-events: none;
+      animation: toastInOut 3.2s ease forwards;
+    }
+    @keyframes toastInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(8px); }
+      12% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-8px); }
     }
 
     /* mobile */
@@ -248,22 +401,66 @@
 </head>
 <body class="dark">
   <canvas id="bg"></canvas>
-
   <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
     <span class="icon" id="themeIcon">☾</span>
     <span id="themeLabel">dark</span>
   </button>
-
   <div class="ui">
     <div class="clock" id="clock">00:00</div>
-    <div class="buttons">
-      <a class="btn" href="https://www.instagram.com/siemaelopozdro69/" target="_blank" rel="noopener">Instagram</a>
-      <a class="btn" href="https://steamcommunity.com/id/xxrenq/" target="_blank" rel="noopener">Steam</a>
-      <a class="btn" href="https://github.com/xXRenq" target="_blank" rel="noopener">GitHub</a>
+
+    <!-- page 1: normal links -->
+    <div class="buttons" id="page1">
+      <a class="btn" href="https://www.instagram.com/siemaelopozdro69/" target="_blank" rel="noopener">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="3.4"/><path d="M8.5 6L10 4h4l1.5 2"/></svg>
+        Instagram
+      </a>
+      <a class="btn" href="https://steamcommunity.com/id/xxrenq/" target="_blank" rel="noopener">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="20" height="10" rx="4"/><path d="M6.5 10.5v5M4 13h5"/><circle cx="16" cy="12" r="1"/><circle cx="18.5" cy="14.3" r="1"/></svg>
+        Steam
+      </a>
+      <a class="btn" href="https://github.com/WetHat47" target="_blank" rel="noopener">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 7 3 12 8 17"/><polyline points="16 7 21 12 16 17"/></svg>
+        GitHub
+      </a>
+      <button class="btn" id="moreBtn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+        More
+      </button>
+    </div>
+
+    <!-- page 2: more stuff, shows up when More is clicked -->
+    <div class="buttons page2" id="page2">
+      <button class="btn" id="bf3Btn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+        Battlefield 3
+      </button>
+      <button class="btn" id="bf4Btn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+        Battlefield 4
+      </button>
+      <a class="btn" href="https://www.youtube.com/@D4rkness-OG" target="_blank" rel="noopener">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="10 8.3 16 12 10 15.7" fill="currentColor" stroke="none"/></svg>
+        YouTube
+      </a>
+      <button class="btn" id="backBtn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Go Back
+      </button>
     </div>
   </div>
+  <div class="contact" id="contact">contact: chodliwy.placek1 @ discord</div>
 
-  <div class="contact">contact: chodliwy.placek1 @ discord</div>
+  <!-- battlefield stats popup -->
+  <div class="bf-overlay" id="bfOverlay">
+    <div class="bf-popup">
+      <button class="bf-close" id="bfClose" aria-label="close">✕</button>
+      <div class="bf-title" id="bfTitle">Battlefield 3</div>
+      <div class="bf-buttons">
+        <button class="bf-btn" id="bfPcBtn">[PC]</button>
+        <button class="bf-btn" id="bfPsBtn">[PS3]</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // theme
@@ -272,7 +469,6 @@
     const themeIcon = document.getElementById('themeIcon');
     const themeLabel = document.getElementById('themeLabel');
     let isDark = true;
-
     function applyTheme() {
       body.classList.toggle('dark', isDark);
       body.classList.toggle('light', !isDark);
@@ -280,12 +476,10 @@
       themeLabel.textContent = isDark ? 'dark' : 'light';
       updateColors();
     }
-
     themeToggle.addEventListener('click', () => {
       isDark = !isDark;
       applyTheme();
     });
-
     // clock (warsaw time)
     const clockEl = document.getElementById('clock');
     function updateClock() {
@@ -299,6 +493,124 @@
     updateClock();
     setInterval(updateClock, 1000);
 
+    // switching between the link page and the "more" page
+    const page1 = document.getElementById('page1');
+    const page2 = document.getElementById('page2');
+    const moreBtn = document.getElementById('moreBtn');
+    const backBtn = document.getElementById('backBtn');
+
+    moreBtn.addEventListener('click', () => {
+      page1.style.display = 'none';
+      page2.style.display = 'flex';
+    });
+    backBtn.addEventListener('click', () => {
+      page2.style.display = 'none';
+      page1.style.display = 'flex';
+    });
+
+    // battlefield popup stuff
+    const bfOverlay = document.getElementById('bfOverlay');
+    const bfTitle = document.getElementById('bfTitle');
+    const bf3Btn = document.getElementById('bf3Btn');
+    const bf4Btn = document.getElementById('bf4Btn');
+    const bfClose = document.getElementById('bfClose');
+    const bfPcBtn = document.getElementById('bfPcBtn');
+    const bfPsBtn = document.getElementById('bfPsBtn');
+
+    // stats links per game, PS button label changes depending on which game is open
+    const bfLinks = {
+      'Battlefield 3': {
+        pc: 'https://battlelog.battlefield.com/bf3/soldier/xXRenqq/stats/1010569514957/pc/',
+        ps: 'https://battlelog.battlefield.com/bf3/user/chodliwy_placek1/',
+        psLabel: '[PS3]'
+      },
+      'Battlefield 4': {
+        pc: null, // not out yet, handled with the toast below
+        ps: 'https://battlelog.battlefield.com/bf4/soldier/chodliwy-placek1/stats/1004366938354/ps4/',
+        psLabel: '[PS4]'
+      }
+    };
+    let currentGame = 'Battlefield 3';
+
+    function openBfPopup(game) {
+      currentGame = game;
+      bfTitle.textContent = game;
+      bfPsBtn.textContent = bfLinks[game].psLabel;
+      bfOverlay.classList.add('open');
+    }
+    function closeBfPopup() {
+      bfOverlay.classList.remove('open');
+    }
+
+    bf3Btn.addEventListener('click', () => openBfPopup('Battlefield 3'));
+    bf4Btn.addEventListener('click', () => openBfPopup('Battlefield 4'));
+    bfClose.addEventListener('click', closeBfPopup);
+    // click outside the box closes it too
+    bfOverlay.addEventListener('click', (e) => {
+      if (e.target === bfOverlay) closeBfPopup();
+    });
+
+    // little floating message that fades out on its own
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      // kill it after the fade-out animation finishes
+      setTimeout(() => toast.remove(), 3200);
+    }
+
+    bfPcBtn.addEventListener('click', () => {
+      const link = bfLinks[currentGame].pc;
+      if (link) {
+        window.open(link, '_blank', 'noopener');
+      } else {
+        showToast("i haven't started playing on PC yet :(");
+      }
+    });
+    bfPsBtn.addEventListener('click', () => {
+      window.open(bfLinks[currentGame].ps, '_blank', 'noopener');
+    });
+
+    // esc closes the popup too, not just the X / click outside
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && bfOverlay.classList.contains('open')) {
+        closeBfPopup();
+      }
+    });
+
+    // click the discord contact to copy the username instead of just staring at it
+    const contactEl = document.getElementById('contact');
+    function copyDiscord() {
+      const username = 'chodliwy.placek1';
+      // clipboard api needs https, so if that's not available (like opening the file locally)
+      // fall back to the old textarea + execCommand trick
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(username)
+          .then(() => showToast('copied discord username'))
+          .catch(() => fallbackCopy(username));
+      } else {
+        fallbackCopy(username);
+      }
+    }
+    function fallbackCopy(text) {
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.focus();
+      temp.select();
+      try {
+        document.execCommand('copy');
+        showToast('copied discord username');
+      } catch {
+        showToast("couldn't copy, discord: " + text);
+      }
+      temp.remove();
+    }
+    contactEl.addEventListener('click', copyDiscord);
+
     // background
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
@@ -306,7 +618,6 @@
     let clouds = [];
     let stars = [];
     let palette = {};
-
     function updateColors() {
       if (isDark) {
         // dark
@@ -330,7 +641,6 @@
         };
       }
     }
-
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       W = window.innerWidth;
@@ -342,7 +652,6 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       createStars();
     }
-
     function createStars() {
       stars = [];
       const count = Math.floor((W * H) / 13000);
@@ -355,46 +664,36 @@
         });
       }
     }
-
     class Cloud {
       constructor() {
         this.puffs = [];
         this.reset(true);
       }
-
       reset(initial = false) {
         const scale = 0.5 + Math.random() * 1.0;
-
         this.x = Math.random() * W;
         this.y = initial ? Math.random() * H : H + 80 + Math.random() * 60;
-
         this.vx = (Math.random() - 0.5) * 0.06;
         this.vy = -(0.018 + Math.random() * 0.04);
-
         this.alpha = 0.16 + Math.random() * 0.26;
         this.wobble = Math.random() * Math.PI * 2;
         this.wobbleSpeed = 0.001 + Math.random() * 0.002;
-
         this.puffs = [];
-
         this.puffs.push({
           ox: 0,
           oy: 8 * scale,
           r: (28 + Math.random() * 18) * scale
         });
-
         this.puffs.push({
           ox: -22 * scale,
           oy: 0,
           r: (20 + Math.random() * 14) * scale
         });
-
         this.puffs.push({
           ox: 24 * scale,
           oy: 2 * scale,
           r: (22 + Math.random() * 15) * scale
         });
-
         this.puffs.push({
           ox: -8 * scale,
           oy: -18 * scale,
@@ -405,7 +704,6 @@
           oy: -16 * scale,
           r: (15 + Math.random() * 11) * scale
         });
-
         const extras = 2 + Math.floor(Math.random() * 4);
         for (let i = 0; i < extras; i++) {
           this.puffs.push({
@@ -415,21 +713,17 @@
           });
         }
       }
-
       update() {
         this.wobble += this.wobbleSpeed;
         this.x += this.vx + Math.sin(this.wobble) * 0.06;
         this.y += this.vy;
-
         if (this.y < -100) this.reset();
         if (this.x < -120) this.x = W + 80;
         if (this.x > W + 120) this.x = -80;
       }
-
       draw() {
         ctx.save();
         ctx.translate(this.x, this.y);
-
         for (const p of this.puffs) {
           ctx.globalAlpha = this.alpha * 0.55;
           let g = ctx.createRadialGradient(p.ox, p.oy, 0, p.ox, p.oy, p.r * 1.6);
@@ -440,7 +734,6 @@
           ctx.beginPath();
           ctx.arc(p.ox, p.oy, p.r * 1.55, 0, Math.PI * 2);
           ctx.fill();
-
           ctx.globalAlpha = this.alpha * 0.85;
           g = ctx.createRadialGradient(p.ox, p.oy, 0, p.ox, p.oy, p.r);
           g.addColorStop(0, palette.cloudCore);
@@ -451,11 +744,9 @@
           ctx.arc(p.ox, p.oy, p.r, 0, Math.PI * 2);
           ctx.fill();
         }
-
         ctx.restore();
       }
     }
-
     function initClouds() {
       clouds = [];
       const count = Math.min(18, Math.floor((W * H) / 38000));
@@ -463,7 +754,6 @@
         clouds.push(new Cloud());
       }
     }
-
     function drawBackground() {
       const cx = W * 0.28;
       const cy = H * 0.38;
@@ -472,13 +762,11 @@
       grad.addColorStop(0.55, 'transparent');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
-
       const g2 = ctx.createRadialGradient(W * 0.78, H * 0.72, 0, W * 0.78, H * 0.72, Math.max(W, H) * 0.6);
       g2.addColorStop(0, palette.wash2);
       g2.addColorStop(1, 'transparent');
       ctx.fillStyle = g2;
       ctx.fillRect(0, 0, W, H);
-
       const [r, g, b] = palette.star;
       for (const s of stars) {
         ctx.beginPath();
@@ -487,7 +775,6 @@
         ctx.fill();
       }
     }
-
     function animate() {
       ctx.clearRect(0, 0, W, H);
       drawBackground();
@@ -497,11 +784,9 @@
       }
       requestAnimationFrame(animate);
     }
-
     window.addEventListener('resize', () => {
       resize();
     });
-
     resize();
     updateColors();
     initClouds();
